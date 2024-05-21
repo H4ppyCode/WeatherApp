@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:project_weather/models/weather_model.dart';
 import 'package:project_weather/services/weather_service.dart';
 
@@ -25,6 +26,19 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  String getWeatherAnimation(String mainCondition) {
+    switch (mainCondition) {
+      case 'Rain':
+        return 'assets/cloud_rainy.json';
+      case 'Clouds':
+        return 'assets/cloudy.json';
+      case 'Clear':
+        return 'assets/sunny.json';
+      default:
+        return 'assets/sunny.json';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -34,12 +48,15 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(_weather?.cityName ?? "Unknown"),
+            Lottie.asset(getWeatherAnimation(_weather!.mainCondition)),
             Text('${_weather?.temperature.round()}°C'),
+            Text(_weather?.mainCondition ?? "Unknown")
           ],
         ),
       ),
