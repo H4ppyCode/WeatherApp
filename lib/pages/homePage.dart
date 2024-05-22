@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:project_weather/models/weather_model.dart';
+import 'package:project_weather/services/timezone_service.dart';
 import 'package:project_weather/services/weather_service.dart';
 import 'package:project_weather/services/date-hours_service.dart'; // Import TimeService
 
@@ -14,17 +14,19 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _weatherService = WeatherService('8a9362a7e54eb6875172b74e6dc8a206');
-  final _timeService = TimeService(); // Create an instance of TimeService
+  final _timeService = TimeService();
+  final _timezoneService =
+      TimezoneService(); // Create an instance of TimezoneService
   Weather? _weather;
   String _cityTime = "";
   String _cityName = "";
-  String _zoneTime = "Europe";
 
   _fetchWeather() async {
     try {
       final weather = await _weatherService.getWeather(_cityName);
-      final cityTime = await _timeService.getCityTime(
-          _cityName, _zoneTime); // Use TimeService to get city time
+      final timezone = await _timezoneService.getCoordinates(_cityName);
+      final cityTime = await _timeService.getCityTime(timezone);
+
       setState(() {
         _weather = weather;
         _cityTime = cityTime;

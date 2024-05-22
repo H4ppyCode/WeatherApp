@@ -3,13 +3,11 @@ import 'package:http/http.dart' as http;
 
 class TimeService {
   static const BASE_URL = 'https://api.api-ninjas.com/v1/worldtime';
-  static const API_KEY =
-      'BsLXzFaYhcvLUlaMbkPoyg==bA4w50uJU0sSkjpp'; // Remplacez par votre clé API
-// Remplacez par votre clé API
+  static const API_KEY = 'BsLXzFaYhcvLUlaMbkPoyg==bA4w50uJU0sSkjpp';
 
-  Future<String> getCityTime(String cityName, String zone) async {
+  Future<String> getCityTime(String cityName) async {
     final response = await http.get(
-      Uri.parse('$BASE_URL?timezone=$zone/$cityName'),
+      Uri.parse('$BASE_URL?timezone=$cityName'),
       headers: {'X-Api-Key': API_KEY},
     );
 
