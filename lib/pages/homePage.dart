@@ -1,27 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:project_weather/enums/weather_main_condition.dart';
 import 'package:project_weather/models/weather_model.dart';
 import 'package:project_weather/services/timezone_service.dart';
 import 'package:project_weather/services/weather_service.dart';
 import 'package:project_weather/services/date-hours_service.dart'; // Import TimeService
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  final _weatherService = WeatherService('8a9362a7e54eb6875172b74e6dc8a206');
-  final _timeService = TimeService();
-  final _timezoneService =
-      TimezoneService(); // Create an instance of TimezoneService
+  final WeatherService _weatherService =
+      WeatherService('8a9362a7e54eb6875172b74e6dc8a206');
+  final TimeService _timeService = TimeService();
+  final TimezoneService _timezoneService = TimezoneService();
+
   Weather? _weather;
   String _cityTime = "";
   String _cityName = "";
+  String _timeZone = "";
+  String _errorMessage = "";
+  bool _isLoading = true;
 
-  _fetchWeather() async {
+  @override
+  void initState() {
+    super.initState();
+    _fetchCurrentLocationWeather();
+  }
+
+  Future<void> _fetchCurrentLocationWeather() async {
+    try {
+      final cityName = await _weatherService.getCurrentCity();
+      setState(() {
+        _cityName = cityName;
+      });
+      await _fetchWeather();
+    } catch (e) {
+      setState(() {
+        _errorMessage = "Error fetching location.";
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchWeather() async {
+    if (_cityName.isEmpty) {
+      setState(() {
+        _errorMessage = "Please enter a city name.";
+        _isLoading = false;
+      });
+      return;
+    }
     try {
       final weather = await _weatherService.getWeather(_cityName);
       final timezone = await _timezoneService.getCoordinates(_cityName);
@@ -30,19 +63,25 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         _weather = weather;
         _cityTime = cityTime;
+        _timeZone = timezone;
+        _errorMessage = "";
+        _isLoading = false;
       });
     } catch (e) {
-      print(e);
+      setState(() {
+        _errorMessage = "Error fetching weather data.";
+        _isLoading = false;
+      });
     }
   }
 
-  String getWeatherAnimation(String mainCondition) {
+  String _getWeatherAnimation(WeatherMainCondition mainCondition) {
     switch (mainCondition) {
-      case 'Rain':
-        return 'assets/cloud_rany.json';
-      case 'Clouds':
+      case WeatherMainCondition.Rain:
+        return 'assets/cloud_rainy.json';
+      case WeatherMainCondition.Clouds:
         return 'assets/cloudy.json';
-      case 'Clear':
+      case WeatherMainCondition.Clear:
         return 'assets/sunny.json';
       default:
         return 'assets/sunny.json';
@@ -56,6 +95,9 @@ class _HomePageState extends State<HomePage> {
         title: TextFormField(
           initialValue: _cityName,
           onFieldSubmitted: (value) {
+            setState(() {
+              _cityName = value;
+            });
             _fetchWeather();
           },
           onChanged: (value) {
@@ -73,20 +115,34 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.white,
       body: Center(
-        child: _weather == null
-            ? Text('Enter a city name and press search.')
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(_weather!.cityName ?? "Unknown"),
-                  Lottie.asset(getWeatherAnimation(_weather!.mainCondition)),
-                  Text('${_weather!.temperature.round()}°C'),
-                  Text(_weather!.mainCondition ?? "Unknown"),
-                  Text(_cityTime), // Display city time
-                ],
-              ),
+        child: _isLoading
+            ? Lottie.asset('assets/loader.json')
+            : _weather == null
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (_errorMessage.isNotEmpty)
+                        Text(_errorMessage,
+                            style: TextStyle(color: Colors.red)),
+                      Text(
+                          'Enter a city name and press search or wait for current location weather.'),
+                    ],
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(_weather!.cityName),
+                      Lottie.asset(
+                          _getWeatherAnimation(_weather!.mainCondition)),
+                      Text('${_weather!.temperature.round()}°C'),
+                      Text(_weather!.mainCondition.name),
+                      SizedBox.fromSize(size: const Size(0, 20)),
+                      Text(_cityTime),
+                      Text(_timeZone),
+                    ],
+                  ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _fetchWeather,

@@ -18,6 +18,7 @@ class WeatherService {
     if (response.statusCode != 200) {
       throw Exception('Error fetching weather data');
     } else {
+      print(response.body);
       return Weather.fromJson(jsonDecode(response.body));
     }
   }
