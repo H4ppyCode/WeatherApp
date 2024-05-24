@@ -5,6 +5,7 @@ enum WeatherMainCondition {
   Snow,
   Clear,
   Clouds,
+  Mist,
   defaultCondition;
 
   String get name {
@@ -21,6 +22,8 @@ enum WeatherMainCondition {
         return 'Clear';
       case WeatherMainCondition.Clouds:
         return 'Clouds';
+      case WeatherMainCondition.Mist:
+        return 'Mist';
       case WeatherMainCondition.defaultCondition:
         return 'defaultCondition';
     }

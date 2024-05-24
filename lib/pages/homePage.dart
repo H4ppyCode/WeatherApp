@@ -83,6 +83,13 @@ class _HomePageState extends State<HomePage> {
         return 'assets/cloudy.json';
       case WeatherMainCondition.Clear:
         return 'assets/sunny.json';
+      case WeatherMainCondition.Snow:
+        return 'assets/snow.json';
+      case WeatherMainCondition.Thunderstorm:
+        return 'assets/storm.json';
+      case WeatherMainCondition.Drizzle:
+        return 'assets/rainy.json';
+
       default:
         return 'assets/sunny.json';
     }
@@ -130,18 +137,51 @@ class _HomePageState extends State<HomePage> {
                           'Enter a city name and press search or wait for current location weather.'),
                     ],
                   )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(_weather!.cityName),
-                      Lottie.asset(
-                          _getWeatherAnimation(_weather!.mainCondition)),
-                      Text('${_weather!.temperature.round()}°C'),
-                      Text(_weather!.mainCondition.name),
-                      SizedBox.fromSize(size: const Size(0, 20)),
-                      Text(_cityTime),
-                      Text(_timeZone),
-                    ],
+                : SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(16),
+                          margin: EdgeInsets.all(8),
+                          constraints: BoxConstraints(
+                            maxWidth: 300,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: Colors.grey[50],
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                _weather!.cityName,
+                                style: TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.bold),
+                              ),
+                              Lottie.asset(_getWeatherAnimation(
+                                  _weather!.mainCondition)),
+                              Text(
+                                '${_weather!.temperature.round()}°C',
+                                style: TextStyle(fontSize: 20),
+                              ),
+                              Text(
+                                _weather!.mainCondition.name,
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              SizedBox(height: 20),
+                              Text(
+                                _cityTime,
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              Text(
+                                _timeZone,
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
       ),
       floatingActionButton: FloatingActionButton(

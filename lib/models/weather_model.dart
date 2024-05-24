@@ -35,6 +35,8 @@ extension WeatherMainConditionExtension on WeatherMainCondition {
         return WeatherMainCondition.Clear;
       case 'clouds':
         return WeatherMainCondition.Clouds;
+      case 'mist':
+        return WeatherMainCondition.Mist;
       default:
         return WeatherMainCondition.defaultCondition;
     }
