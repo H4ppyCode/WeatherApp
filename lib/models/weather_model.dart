@@ -4,11 +4,13 @@ class Weather {
   final String cityName;
   final double temperature;
   final WeatherMainCondition mainCondition;
+  final DateTime? dateTime;
 
   Weather(
       {required this.cityName,
       required this.temperature,
-      required this.mainCondition});
+      required this.mainCondition,
+      this.dateTime});
 
   factory Weather.fromJson(Map<String, dynamic> json) {
     return Weather(
@@ -16,6 +18,17 @@ class Weather {
       temperature: json['main']['temp'],
       mainCondition:
           WeatherMainConditionExtension.fromString(json['weather'][0]['main']),
+    );
+  }
+
+  factory Weather.fromForecastJson(Map<String, dynamic> json) {
+    return Weather(
+      cityName:
+          "", // Le nom de la ville peut être ajouté séparément si nécessaire
+      temperature: (json['main']['temp'] ?? 0.0).toDouble(),
+      mainCondition: WeatherMainConditionExtension.fromString(
+          json['weather'][0]['main'] ?? ""),
+      dateTime: DateTime.parse(json['dt_txt'] ?? DateTime.now().toString()),
     );
   }
 }

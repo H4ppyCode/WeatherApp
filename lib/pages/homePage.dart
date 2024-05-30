@@ -20,6 +20,7 @@ class _HomePageState extends State<HomePage> {
   final TimezoneService _timezoneService = TimezoneService();
 
   Weather? _weather;
+  List<Weather>? _forecast;
   String _cityTime = "";
   String _cityName = "";
   String _timeZone = "";
@@ -59,12 +60,20 @@ class _HomePageState extends State<HomePage> {
       final weather = await _weatherService.getWeather(_cityName);
       final timezone = await _timezoneService.getCoordinates(_cityName);
       final cityTime = await _timeService.getCityTime(timezone);
+      final coordinates =
+          await _timezoneService.getCoordinatesLatLong(_cityName);
+      print(coordinates);
+      print(coordinates.split(';')[0]);
+      print(coordinates.split(';')[1]);
+      final forecast = await _weatherService.getForecastWeather(
+          coordinates.split(';')[0], coordinates.split(';')[1]);
 
       setState(() {
         _weather = weather;
         _cityTime = cityTime;
         _timeZone = timezone;
         _errorMessage = "";
+        _forecast = forecast;
         _isLoading = false;
       });
     } catch (e) {
@@ -180,6 +189,20 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                         ),
+                        if (_forecast != null) ...[
+                          Text("Weather Forecast",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                          Column(
+                            children: _forecast!.map((forecast) {
+                              return ListTile(
+                                title: Text(
+                                    '${forecast.dateTime}: ${forecast.temperature.round()}°C'),
+                                subtitle: Text(forecast.mainCondition.name),
+                              );
+                            }).toList(),
+                          ),
+                        ]
                       ],
                     ),
                   ),

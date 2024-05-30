@@ -28,6 +28,25 @@ class TimezoneService {
       return getTimeZone(lat, long);
     }
   }
+
+  Future<String> getCoordinatesLatLong(String city) async {
+    final response = await http.get(
+      Uri.parse('$BASE_URL2?city=$city'),
+      headers: {'X-Api-Key': API_KEY},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Error fetching getcoordinate data');
+    } else {
+      final data = jsonDecode(response.body);
+      print(data);
+      final lat = data[0]['latitude'].toString();
+      final long = data[0]['longitude'].toString();
+      print(lat);
+      print(long);
+      return lat + ';' + long;
+    }
+  }
   // Future<String> getCoordinates(String city) async {
   //   final response = await http.get(
   //     Uri.parse('$BASE_URL2?q=$city'),

@@ -7,6 +7,8 @@ import 'package:geolocator/geolocator.dart';
 
 class WeatherService {
   static const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
+  static const BASE_URL_FORECAST =
+      'https://api.openweathermap.org/data/2.5/forecast';
   final String api_KEY;
 
   WeatherService(this.api_KEY);
@@ -40,5 +42,21 @@ class WeatherService {
     String? cityName = placemarks[0].locality;
 
     return cityName ?? 'Unknown';
+  }
+
+  Future<List<Weather>> getForecastWeather(String lat, String lon) async {
+    final response = await http.get(Uri.parse(
+        '$BASE_URL_FORECAST?lat=$lat&lon=$lon&appid=$api_KEY&units=metric'));
+
+    if (response.statusCode != 200) {
+      throw Exception('Error fetching forecast weather data');
+    } else {
+      var forecastJson = jsonDecode(response.body);
+      print('getForecastWeather: $forecastJson');
+      List<dynamic> forecastList = forecastJson['list'];
+      return forecastList
+          .map((item) => Weather.fromForecastJson(item))
+          .toList();
+    }
   }
 }
